@@ -1,3 +1,5 @@
+[諸元]
+
 <h1 align="center">
   <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://github.com/user-attachments/assets/38ba3a7b-e07b-4117-8187-7b171eae3769" alt="B2B Commerce Starter" width="80" height="80"></a>
   <br>
