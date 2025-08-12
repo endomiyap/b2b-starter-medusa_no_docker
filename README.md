@@ -1,5 +1,14 @@
-[諸元]
+[概要]
 
+[変更]
+・ログインに失敗する場合
+(1)
+rm -rf node_modules && yarn cache clean
+(2)
+yarn install && yarn medusa db:create && yarn build && yarn run seed && yarn
+  medusa user -e saas_admin@test.com -p supersecret -i saas_admin
+
+[諸元]
 <h1 align="center">
   <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://github.com/user-attachments/assets/38ba3a7b-e07b-4117-8187-7b171eae3769" alt="B2B Commerce Starter" width="80" height="80"></a>
   <br>
@@ -33,14 +42,13 @@
 
 ## Table
 
-- [Prerequisites](#prerequisites)
-- [Overview](#overview)
-  - [Features](#features)
-  - [Demo](#demo)
-- [Quickstart](#quickstart)
 - [Update](#update)
+  - [Update packages](#update-packages)
+  - [Run migrations](#run-migrations)
 - [Resources](#resources)
-- [Contributors](#contributors)
+      - [Learn more about Medusa](#learn-more-about-medusa)
+      - [Learn more about Next.js](#learn-more-about-nextjs)
+  - [Contributors](#contributors)
 
 &nbsp;
 
@@ -133,7 +141,7 @@ cp .env.template .env
 yarn install
 
 # Install dependencies, setup database & seed data
-yarn install && yarn medusa db:create && yarn medusa db:migrate && yarn run seed && yarn medusa user -e admin@test.com -p supersecret -i admin
+yarn install && yarn medusa db:create && yarn medusa db:medusa-b2b-starter && yarn run seed && yarn medusa user -e admin@test.com -p supersecret -i admin
 
 # Start Medusa project - backend & admin
 yarn dev
