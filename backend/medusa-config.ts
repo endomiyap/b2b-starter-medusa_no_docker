@@ -26,6 +26,9 @@ module.exports = defineConfig({
     [APPROVAL_MODULE]: {
       resolve: "./modules/approval",
     },
+    [Modules.STORE]: {
+      resolve: "@medusajs/store",
+    },
     [Modules.CACHE]: {
       resolve: "@medusajs/medusa/cache-inmemory",
     },

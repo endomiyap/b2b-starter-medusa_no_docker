@@ -34,13 +34,13 @@
     "@mikro-orm/postgresql": "6.4.3",
     "awilix": "^8.0.1",
     "pg": "^8.13.0",
-    "zod": "3.22.4"
+    "zod": "^3.25.0"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.8.4",
     "@medusajs/ui-preset": "2.8.4",
     "@mikro-orm/cli": "6.4.3",
-    "@swc/core": "^1.5.7",
+    "@swc/core": "1.5.7",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.0.0",
@@ -57,5 +57,8 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "yarn@4.4.0"
+  "packageManager": "yarn@4.4.0",
+  "resolutions": {
+    "zod": "^3.25.0"
+  }
 }
