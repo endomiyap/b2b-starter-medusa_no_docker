@@ -1,14 +1,33 @@
-[概要]
+## 概要
 
-[変更]
-・ログインに失敗する場合
-(1)
-rm -rf node_modules && yarn cache clean
-(2)
-yarn install && yarn medusa db:create && yarn build && yarn run seed && yarn
+※ backendとstorefrontで各自インストールしますが
+  今後は統一予定です。
+
+## 確認
+【手順】
+- git clone 
+
+[backend]
+- cd ../backend
+- cp .env.template .env
+- yarn install && yarn medusa db:create && yarn medusa db:medusa-b2b-starter && yarn run seed && yarn medusa user -e admin@test.com -p supersecret -i admin
+- yarn dev
+- http://localhost/9000
+  <br>email: admin@test.com
+  <br>pw:supersecret
+
+[storefront]
+- cd ../storefront
+- cp .env.template .env
+- yarn install
+
+
+【ログインに失敗する場合】
+- rm -rf node_modules && yarn cache clean
+- yarn install && yarn medusa db:create && yarn build && yarn run seed && yarn
   medusa user -e saas_admin@test.com -p supersecret -i saas_admin
 
-[諸元]
+## 諸元
 <h1 align="center">
   <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://github.com/user-attachments/assets/38ba3a7b-e07b-4117-8187-7b171eae3769" alt="B2B Commerce Starter" width="80" height="80"></a>
   <br>
