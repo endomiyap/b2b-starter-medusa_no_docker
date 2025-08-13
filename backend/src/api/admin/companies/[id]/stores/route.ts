@@ -42,34 +42,32 @@ export async function GET(
   console.log("Company ID:", companyId);
 
   try {
-    const linkService = req.scope.resolve("link");
-    console.log("Link service resolved:", !!linkService);
-
-    // Company-Store リンクを取得
-    // TODO links は常に“配列”として初期化（例外時も扱いやすく）
-    let links: unknown[] = [];
-    try {
-      console.log("Attempting to get links with query:", { company: { id: companyId } });
-      links = await linkService.list({
-        company: { id: companyId }
-      });
-      console.log("Links retrieved successfully:", links);
-      console.log("Links length:", links?.length || 0);
-    } catch (linkError) {
-      console.warn(`Link service error for company ${companyId}:`, linkError);
-      console.log("Link error details:", {
-        name: linkError.name,
-        message: linkError.message,
-        stack: linkError.stack
-      });
-      links = [];
-    }
-
-    console.log("Final links value:", links);
-    console.log("Links is array:", Array.isArray(links));
+    // 直接データベースから Company-Store リンクを取得
+    // Medusa v2ではpgパッケージを使用
+    const { Client } = require('pg');
+    const client = new Client({
+      connectionString: process.env.DATABASE_URL || 'postgres://postgres@localhost/medusa-b2b-starter'
+    });
     
-    if (!links || links.length === 0) {
-      console.log("No links found, returning empty stores array");
+    await client.connect();
+    console.log("Database connected");
+    
+    console.log("Querying database for company-store links...");
+    console.log("Query: SELECT store_id FROM company_company_store_store WHERE company_id =", companyId);
+    
+    const result = await client.query(
+      'SELECT store_id FROM company_company_store_store WHERE company_id = $1',
+      [companyId]
+    );
+    
+    const storeLinks = result.rows;
+    await client.end();
+    
+    console.log("Store links from database:", storeLinks);
+    console.log("Store links count:", storeLinks.length);
+    
+    if (storeLinks.length === 0) {
+      console.log("No store links found in database, returning empty stores array");
       res.json({
         company_id: companyId,
         stores: []
@@ -77,12 +75,11 @@ export async function GET(
       return;
     }
 
-    console.log("Processing links to extract store IDs...");
-    // TODO ストアIDを取得（nullチェック追加）
-    const storeIds = extractStoreIds(links)
-    if (storeIds.length === 0) {
-      return res.json({ company_id: companyId, stores: [] })
-    }
+    console.log("Processing store links to extract store IDs...");
+    const storeIds = storeLinks.map((link: { store_id: string }) => {
+      console.log("Extracting store_id from link:", link.store_id);
+      return link.store_id;
+    });
 
     // const storeIds = links
     //   .filter((link: any) => {

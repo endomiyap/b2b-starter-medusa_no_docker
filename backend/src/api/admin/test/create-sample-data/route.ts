@@ -55,9 +55,9 @@ export async function POST(
     const tenantBProductResult = await createProductsWorkflow(req.scope).run({
       input: {
         products: [{
-          title: 'テナントB専用商品 - 国際展開パッケージ',
+          title: 'テナントB専用商品 - ステーショナリ',
           handle: 'tenant-b-international-package-' + Date.now(),
-          description: 'テナントB向け国際展開商品（テナントA非表示）',
+          description: 'テナントB向けステーショナリ商品（テナントA非表示）',
           status: 'published',
           options: [{
             title: 'プラン',
@@ -113,7 +113,7 @@ export async function POST(
     }
 
     res.status(201).json({
-      message: "Sample data created successfully",
+      message: "テストデータ created successfully",
       data: {
         tenantA: {
           product: {

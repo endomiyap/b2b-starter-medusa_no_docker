@@ -11,21 +11,31 @@ export async function GET(
   const { id: storeId } = req.params;
   
   try {
-    const linkService = req.scope.resolve("link");
-    const productService = req.scope.resolve(Modules.PRODUCT) as any;
+    // 直接データベースから Product-Store リンクを取得
+    const { Client } = require('pg');
+    const client = new Client({
+      connectionString: process.env.DATABASE_URL || 'postgres://postgres@localhost/medusa-b2b-starter'
+    });
+    
+    await client.connect();
+    
+    console.log("=== Store Products API Debug ===");
+    console.log("Store ID:", storeId);
+    console.log("Querying database for product-store links...");
+    
+    const result = await client.query(
+      'SELECT product_id FROM product_product_store_store WHERE store_id = $1',
+      [storeId]
+    );
+    
+    const productLinks = result.rows;
+    await client.end();
+    
+    console.log("Product links from database:", productLinks);
+    console.log("Product links count:", productLinks.length);
 
-    // Product-Store リンクを取得
-    let links;
-    try {
-      links = await linkService.list({
-        store: { store_id: storeId }
-      });
-    } catch (linkError) {
-      console.warn(`Link service error for store ${storeId}:`, linkError);
-      links = [];
-    }
-
-    if (!links || links.length === 0) {
+    if (productLinks.length === 0) {
+      console.log("No product links found in database");
       res.json({
         store_id: storeId,
         products: [],
@@ -34,10 +44,11 @@ export async function GET(
       return;
     }
 
-    // 商品IDを取得（nullチェック追加）
-    const productIds = links
-      .filter((link: any) => link && link.product && link.product.product_id)
-      .map((link: any) => link.product.product_id);
+    // 商品IDを取得
+    const productIds = productLinks.map((link: { product_id: string }) => {
+      console.log("Extracting product_id from link:", link.product_id);
+      return link.product_id;
+    });
 
     if (productIds.length === 0) {
       res.json({
@@ -48,21 +59,43 @@ export async function GET(
       return;
     }
 
-    // 商品詳細データを取得
+    // 商品詳細データを直接SQLで取得
+    console.log("-- Attempting to retrieve products with IDs:", productIds);
+    
+    // 新しいデータベース接続を作成
+    const clientForProducts = new Client({
+      connectionString: process.env.DATABASE_URL || 'postgres://postgres@localhost/medusa-b2b-starter'
+    });
+    await clientForProducts.connect();
+    
     const products = await Promise.all(
       productIds.map(async (productId: string) => {
         try {
-          const product = await productService.retrieveProduct(productId, {
-            select: ["id", "title", "description", "handle", "status", "created_at", "updated_at"],
-            relations: ["variants", "variants.prices"]
-          });
-          return product;
-        } catch (error) {
-          console.warn(`Product ${productId} not found:`, error);
+          console.log(`>>> Retrieving product: ${productId}`);
+          
+          // 直接SQLで商品情報を取得
+          const productResult = await clientForProducts.query(
+            'SELECT id, title, description, handle, status, created_at, updated_at FROM product WHERE id = $1',
+            [productId]
+          );
+          
+          if (productResult.rows.length > 0) {
+            const product = productResult.rows[0];
+            console.log(`>>> Product retrieved successfully:`, product);
+            return product;
+          } else {
+            console.log(`>>> Product not found: ${productId}`);
+            return null;
+          }
+        } catch (error: any) {
+          console.error(`>>> Product ${productId} retrieval failed:`, error.message);
+          console.error(">>> Full error:", error);
           return null;
         }
       })
     );
+    
+    await clientForProducts.end();
     
     // nullを除去して有効な商品のみを返す
     const validProducts = products.filter(product => product !== null);
@@ -71,7 +104,7 @@ export async function GET(
       store_id: storeId,
       products: validProducts,
       count: validProducts.length,
-      linked_count: links.length
+      linked_count: productLinks.length
     });
     
   } catch (error: any) {
