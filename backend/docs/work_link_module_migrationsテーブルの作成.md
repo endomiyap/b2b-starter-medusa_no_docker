@@ -36,8 +36,8 @@ Table "public.store"
 ### 現在のStore一覧
 ```sql
 id                               | name      | created_at
-store_01K27XHETT3F9Q476JC90YSBJT | テナントA | 2025-08-10 02:20:02.393373+09
-store_01K2DX48ZTG990CHV19HN64FWR | テナントB | 2025-08-12 10:08:17 (新規作成)
+store_01K27XHETT3F9Q476JC90YSBJT | 企業Aのストア | 2025-08-10 02:20:02.393373+09
+store_01K2DX48ZTG990CHV19HN64FWR | 企業Bのストア | 2025-08-12 10:08:17 (新規作成)
 ```
 
 ## Link Module Migrations システムの理解

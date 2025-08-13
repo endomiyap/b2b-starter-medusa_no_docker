@@ -109,10 +109,10 @@ JOIN product p ON pss.product_id = p.id;
 ## 期待される結果
 
 ### 正常な分離状態
-- テナントA会社: テナントA専用商品のみ管理
-- テナントB会社: テナントB専用商品のみ管理  
+- 企業A会社: 企業A専用商品のみ管理
+- 企業B会社: 企業B専用商品のみ管理  
 - 各ストア: 関連付けられた商品のみ表示
-- データ重複なし: 他テナントの商品は見えない
+- データ重複なし: 他企業の商品は見えない
 
 ### API応答例
 ```json
@@ -121,9 +121,9 @@ JOIN product p ON pss.product_id = p.id;
   "company_id": "comp_01K27ZHT30SKSCWDH9Z2J8AEGF",
   "stores": [
     {
-      "store": { "id": "store_01K2DX48ZTG990CHV19HN64FWR", "name": "テナントAストア" },
+      "store": { "id": "store_01K2DX48ZTG990CHV19HN64FWR", "name": "企業Aストア" },
       "products": [
-        { "id": "prod_xxx", "title": "テナントA専用商品 - オフィス用品セット" }
+        { "id": "prod_xxx", "title": "企業A専用商品 - オフィス用品セット" }
       ],
       "product_count": 1
     }

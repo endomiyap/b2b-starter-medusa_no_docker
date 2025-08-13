@@ -16,14 +16,14 @@ export async function POST(
     const tenantAStoreId = 'store_01K2DX48ZTG990CHV19HN64FWR';
     const tenantBStoreId = 'store_789def';
 
-    // 1. テナントA専用商品を作成
+    // 1. 企業A専用商品を作成
     console.log('Creating tenant A product...');
     const tenantAProductResult = await createProductsWorkflow(req.scope).run({
       input: {
         products: [{
-          title: 'テナントA専用商品 - オフィス用品セット',
+          title: '企業A専用商品 - オフィス用品セット',
           handle: 'tenant-a-office-supplies-' + Date.now(),
-          description: 'テナントA向けビジネス用品セット（他テナント非表示）',
+          description: '企業A向オフィス用品セット',
           status: 'published',
           options: [{
             title: 'サイズ',
@@ -50,14 +50,14 @@ export async function POST(
       }
     });
 
-    // 2. テナントB専用商品を作成
+    // 2. 企業B専用商品を作成
     console.log('Creating tenant B product...');
     const tenantBProductResult = await createProductsWorkflow(req.scope).run({
       input: {
         products: [{
-          title: 'テナントB専用商品 - ステーショナリ',
+          title: '企業B専用商品 - ステーショナリ',
           handle: 'tenant-b-international-package-' + Date.now(),
-          description: 'テナントB向けステーショナリ商品（テナントA非表示）',
+          description: '企業B向けステーショナリ商品',
           status: 'published',
           options: [{
             title: 'プラン',
@@ -90,7 +90,7 @@ export async function POST(
     // 3. 商品をストアにリンク
     console.log('Linking products to stores...');
     
-    // テナントA商品 → テナントAストア
+    // 企業A商品 → 企業Aストア
     try {
       await linkService.create({
         product: { product_id: tenantAProduct.id },
@@ -101,7 +101,7 @@ export async function POST(
       console.warn('Failed to link tenant A product:', error);
     }
 
-    // テナントB商品 → テナントBストア  
+    // 企業B商品 → 企業Bストア  
     try {
       await linkService.create({
         product: { product_id: tenantBProduct.id },

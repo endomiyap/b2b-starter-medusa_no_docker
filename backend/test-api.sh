@@ -54,13 +54,13 @@ echo "4. テナント別商品確認中..."
 TENANT_A_ID="comp_01K27ZHT30SKSCWDH9Z2J8AEGF"
 TENANT_B_ID="comp_7de1989184db5bd876b8390390"
 
-echo "テナントA会社の商品:"
+echo "企業A会社の商品:"
 TENANT_A_PRODUCTS=$(curl -s -X GET "$BASE_URL/admin/companies/$TENANT_A_ID/products" \
   -b cookies.txt)
 echo $TENANT_A_PRODUCTS | jq '.total_products, .products[].title'
 
 echo ""
-echo "テナントB会社の商品:"
+echo "企業B会社の商品:"
 TENANT_B_PRODUCTS=$(curl -s -X GET "$BASE_URL/admin/companies/$TENANT_B_ID/products" \
   -b cookies.txt)
 echo $TENANT_B_PRODUCTS | jq '.total_products, .products[].title'
@@ -72,13 +72,13 @@ echo "5. ストア別商品確認中..."
 TENANT_A_STORE_ID="store_01K2DX48ZTG990CHV19HN64FWR"
 TENANT_B_STORE_ID="store_789def"
 
-echo "テナントAストアの商品:"
+echo "企業Aストアの商品:"
 STORE_A_PRODUCTS=$(curl -s -X GET "$BASE_URL/admin/stores/$TENANT_A_STORE_ID/products" \
   -b cookies.txt)
 echo $STORE_A_PRODUCTS | jq '.count, .products[].title'
 
 echo ""
-echo "テナントBストアの商品:"
+echo "企業Bストアの商品:"
 STORE_B_PRODUCTS=$(curl -s -X GET "$BASE_URL/admin/stores/$TENANT_B_STORE_ID/products" \
   -b cookies.txt)
 echo $STORE_B_PRODUCTS | jq '.count, .products[].title'
@@ -89,8 +89,8 @@ echo "6. テナント分離確認結果:"
 TENANT_A_COUNT=$(echo $TENANT_A_PRODUCTS | jq '.total_products')
 TENANT_B_COUNT=$(echo $TENANT_B_PRODUCTS | jq '.total_products')
 
-echo "テナントA管理商品数: $TENANT_A_COUNT"
-echo "テナントB管理商品数: $TENANT_B_COUNT"
+echo "企業A管理商品数: $TENANT_A_COUNT"
+echo "企業B管理商品数: $TENANT_B_COUNT"
 
 if [ "$TENANT_A_COUNT" -gt 0 ] && [ "$TENANT_B_COUNT" -gt 0 ]; then
     echo " テナント分離成功: 各テナントが独立した商品を管理"

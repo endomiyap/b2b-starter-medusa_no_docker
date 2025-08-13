@@ -30,23 +30,23 @@ curl -s -X GET "http://localhost:9000/admin/stores" \
 
 # 4. 会社-ストア関連確認
 echo ""
-echo "4. テナントA会社のストア:"
+echo "4. 企業Aのストア:"
 curl -s -X GET "http://localhost:9000/admin/companies/comp_01K27ZHT30SKSCWDH9Z2J8AEGF/stores" \
   -H "Authorization: Bearer $TOKEN" | jq '.'
 
 echo ""
-echo "5. テナントB会社のストア:"
+echo "5. 企業Bのストア:"
 curl -s -X GET "http://localhost:9000/admin/companies/comp_7de1989184db5bd876b8390390/stores" \
   -H "Authorization: Bearer $TOKEN" | jq '.'
 
 # 5. ストア別商品確認
 echo ""
-echo "6. テナントAストアの商品:"
+echo "6. 企業Aストアの商品:"
 curl -s -X GET "http://localhost:9000/admin/stores/store_01K27XHETT3F9Q476JC90YSBJT/products" \
   -H "Authorization: Bearer $TOKEN" | jq '.'
 
 echo ""
-echo "7. テナントBストアの商品:"
+echo "7. 企業Bストアの商品:"
 curl -s -X GET "http://localhost:9000/admin/stores/store_01K2DX48ZTG990CHV19HN64FWR/products" \
   -H "Authorization: Bearer $TOKEN" | jq '.'
 
