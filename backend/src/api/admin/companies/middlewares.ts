@@ -18,6 +18,7 @@ import {
   AdminUpdateCompany,
   AdminUpdateEmployee,
 } from "./validators";
+import { ensureHierarchicalRole, ensureRoleWithCompanyAccess } from "../middlewares/ensure-role";
 
 export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
   /* Companies Middlewares */
@@ -25,6 +26,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/companies",
     middlewares: [
+      ensureHierarchicalRole("company_admin"), // Company Admin以上
       validateAndTransformQuery(
         AdminGetCompanyParams,
         adminCompanyQueryConfig.list
@@ -35,6 +37,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/companies",
     middlewares: [
+      ensureHierarchicalRole("platform_admin"), // Platform Adminのみ
       validateAndTransformBody(AdminCreateCompany),
       validateAndTransformQuery(
         AdminGetCompanyParams,
@@ -46,6 +49,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/companies/:id",
     middlewares: [
+      ensureRoleWithCompanyAccess("company_admin"), // 会社アクセス権チェック
       validateAndTransformQuery(
         AdminGetCompanyParams,
         adminCompanyQueryConfig.retrieve
@@ -56,6 +60,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/companies/:id",
     middlewares: [
+      ensureRoleWithCompanyAccess("company_admin"), // 会社アクセス権チェック
       validateAndTransformBody(AdminUpdateCompany),
       validateAndTransformQuery(
         AdminGetCompanyParams,
@@ -69,6 +74,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/companies/:id/employees",
     middlewares: [
+      ensureRoleWithCompanyAccess("company_admin"), // 会社アクセス権チェック
       validateAndTransformQuery(
         AdminGetEmployeeParams,
         adminEmployeeQueryConfig.list
@@ -79,6 +85,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/companies/:id/employees",
     middlewares: [
+      ensureRoleWithCompanyAccess("company_admin"), // 会社アクセス権チェック
       validateAndTransformBody(AdminCreateEmployee),
       validateAndTransformQuery(
         AdminGetEmployeeParams,
@@ -90,6 +97,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/companies/:id/employees/:employee_id",
     middlewares: [
+      ensureRoleWithCompanyAccess("company_admin"), // 会社アクセス権チェック
       validateAndTransformQuery(
         AdminGetEmployeeParams,
         adminEmployeeQueryConfig.retrieve
@@ -100,6 +108,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/companies/:id/employees/:employee_id",
     middlewares: [
+      ensureRoleWithCompanyAccess("company_admin"), // 会社アクセス権チェック
       validateAndTransformBody(AdminUpdateEmployee),
       validateAndTransformQuery(
         AdminGetEmployeeParams,
@@ -112,6 +121,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/companies/:id/approval-settings",
     middlewares: [
+      ensureRoleWithCompanyAccess("company_admin"), // 会社アクセス権チェック
       validateAndTransformBody(AdminUpdateApprovalSettings),
       validateAndTransformQuery(
         AdminGetApprovalSettingsParams,

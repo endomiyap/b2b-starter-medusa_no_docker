@@ -61,7 +61,7 @@ echo "4. テナント別商品確認..."
 TENANT_A_ID="comp_01K27ZHT30SKSCWDH9Z2J8AEGF"
 TENANT_B_ID="comp_7de1989184db5bd876b8390390"
 
-echo "テナントA会社の商品確認:"
+echo "企業A会社の商品確認:"
 TENANT_A_PRODUCTS=$(curl -s -X GET "$BASE_URL/admin/companies/$TENANT_A_ID/products" \
   -H "Authorization: Bearer $TOKEN")
 
@@ -74,7 +74,7 @@ else
 fi
 
 echo ""
-echo "テナントB会社の商品確認:"
+echo "企業B会社の商品確認:"
 TENANT_B_PRODUCTS=$(curl -s -X GET "$BASE_URL/admin/companies/$TENANT_B_ID/products" \
   -H "Authorization: Bearer $TOKEN")
 
