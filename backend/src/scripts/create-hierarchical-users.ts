@@ -1,7 +1,14 @@
-import { MedusaContainer } from "@medusajs/framework/types";
+import { MedusaContainer, IAuthModuleService, ICustomerModuleService } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
-import { buildUserMetadataFromEmployee, updateUserMetadata } from "../utils/auth-utils";
-import { UserRole } from "../api/middlewares/check-permissions";
+import { buildUserMetadataFromEmployee, updateUserMetadata, UserMetadata, UserRole } from "../utils/auth-utils";
+
+interface ICompanyModuleService {
+  createEmployees(data: any[]): Promise<any[]>;
+}
+
+interface ILinkModuleService {
+  create(data: any): Promise<void>;
+}
 
 /**
  * 階層的ユーザー作成・権限設定スクリプト
@@ -13,6 +20,8 @@ async function createHierarchicalUsers({ container }: { container: MedusaContain
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
   const authModuleService = container.resolve(Modules.AUTH);
   const customerModuleService = container.resolve(Modules.CUSTOMER);
+
+  console.log("サービスの初期化が完了しました。");
 
   try {
     // 1. Platform Admin ユーザーの作成
@@ -46,9 +55,7 @@ async function createHierarchicalUsers({ container }: { container: MedusaContain
 
     // Platform Admin用のauth_identity作成
     try {
-      const authIdentity = await authModuleService.createAuthIdentities([{
-        entity_id: platformCustomer[0].id,
-      }]);
+      const authIdentity = await authModuleService.createAuthIdentities([{}]);
 
       // provider_identity作成
       const providerIdentity = await authModuleService.createProviderIdentities([{
@@ -99,7 +106,7 @@ async function createHierarchicalUsers({ container }: { container: MedusaContain
       // employee作成
       let employee;
       try {
-        const employeeModuleService = container.resolve("companyModuleService");
+        const employeeModuleService = container.resolve("companyModuleService") as ICompanyModuleService;
         employee = await employeeModuleService.createEmployees([{
           company_id: company.id,
           is_admin: true,
@@ -107,7 +114,7 @@ async function createHierarchicalUsers({ container }: { container: MedusaContain
         }]);
 
         // employee-customerリンク作成
-        const linkModuleService = container.resolve("linkModuleService");
+        const linkModuleService = container.resolve("linkModuleService") as ILinkModuleService;
         await linkModuleService.create({
           [`companyModuleService_employee`]: {
             employee_id: employee[0].id,
@@ -125,9 +132,7 @@ async function createHierarchicalUsers({ container }: { container: MedusaContain
 
       // auth_identity作成
       try {
-        const authIdentity = await authModuleService.createAuthIdentities([{
-          entity_id: companyCustomer[0].id,
-        }]);
+        const authIdentity = await authModuleService.createAuthIdentities([{}]);
 
         // user_metadataを構築
         const metadata = await buildUserMetadataFromEmployee(
@@ -183,7 +188,7 @@ async function createHierarchicalUsers({ container }: { container: MedusaContain
           }]);
 
           // employee作成
-          const employeeModuleService = container.resolve("companyModuleService");
+          const employeeModuleService = container.resolve("companyModuleService") as ICompanyModuleService;
           const storeEmployee = await employeeModuleService.createEmployees([{
             company_id: companyA.id,
             is_admin: false,
@@ -191,7 +196,7 @@ async function createHierarchicalUsers({ container }: { container: MedusaContain
           }]);
 
           // employee-customerリンク作成
-          const linkModuleService = container.resolve("linkModuleService");
+          const linkModuleService = container.resolve("linkModuleService") as ILinkModuleService;
           await linkModuleService.create({
             [`companyModuleService_employee`]: {
               employee_id: storeEmployee[0].id,
@@ -202,9 +207,7 @@ async function createHierarchicalUsers({ container }: { container: MedusaContain
           });
 
           // auth_identity作成
-          const authIdentity = await authModuleService.createAuthIdentities([{
-            entity_id: storeCustomer[0].id,
-          }]);
+          const authIdentity = await authModuleService.createAuthIdentities([{}]);
 
           // store_admin権限を設定（特定のStoreのみアクセス可能）
           const metadata = {
@@ -264,3 +267,22 @@ async function createHierarchicalUsers({ container }: { container: MedusaContain
 }
 
 export default createHierarchicalUsers;
+
+// スクリプトの直接実行時の処理
+if (require.main === module) {
+  const { MedusaModule } = require("@medusajs/framework/modules-sdk");
+  const { configModule } = require("../../medusa-config");
+  
+  async function run() {
+    console.log("=== 直接実行モード ===");
+    
+    try {
+      const container = MedusaModule.createMedusaContainer({}, configModule);
+      await createHierarchicalUsers({ container });
+    } catch (error) {
+      console.error("スクリプト実行エラー:", error);
+    }
+  }
+  
+  run();
+}

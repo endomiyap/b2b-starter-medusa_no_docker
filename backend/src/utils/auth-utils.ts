@@ -1,5 +1,13 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { UserRole, UserMetadata } from "../api/middlewares/check-permissions";
+
+export type UserRole = "platform_admin" | "company_admin" | "store_admin" | "company_user";
+
+// UserMetadataの再定義（Record<string, unknown>を継承）
+export interface UserMetadata extends Record<string, unknown> {
+  role?: UserRole;
+  company_id?: string;
+  store_ids?: string[];
+}
 
 /**
  * 権限管理ヘルパー関数

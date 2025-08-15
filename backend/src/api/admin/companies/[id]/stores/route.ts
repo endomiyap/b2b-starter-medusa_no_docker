@@ -122,9 +122,18 @@ export async function GET(
     const validStores = stores.filter(store => store !== null);
     console.log("Valid stores:", validStores);
 
+    // Store Adminの場合、担当ストアのみにフィルタリング
+    let filteredStores = validStores;
+    if (req.auth_context.user_role === "store_admin") {
+      const userStoreIds = req.auth_context.store_ids || [];
+      console.log("Store Admin detected. Filtering by store_ids:", userStoreIds);
+      filteredStores = validStores.filter(store => userStoreIds.includes(store.id));
+      console.log("Filtered stores for Store Admin:", filteredStores);
+    }
+
     const response = {
       company_id: companyId,
-      stores: validStores
+      stores: filteredStores
     };
     console.log("Final response:", response);
     console.log("=== End Debug ===");

@@ -35,5 +35,16 @@ module.exports = defineConfig({
     [Modules.WORKFLOW_ENGINE]: {
       resolve: "@medusajs/medusa/workflow-engine-inmemory",
     },
+    [Modules.AUTH]: {
+      resolve: "@medusajs/medusa/auth",
+      options: {
+        providers: [
+          {
+            id: "emailpass",
+            resolve: "@medusajs/medusa/auth-emailpass",
+          },
+        ],
+      },
+    },
   },
 });

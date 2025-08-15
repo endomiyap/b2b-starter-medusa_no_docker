@@ -4,8 +4,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { UserRole, UserMetadata } from "./check-permissions";
-import { hasPermission } from "../../utils/auth-utils";
+import { hasPermission, UserMetadata, UserRole } from "../../utils/auth-utils";
 
 /**
  * 既存のensureRole - 下位互換性を保持
@@ -48,6 +47,7 @@ export const ensureRole = (role: string) => {
 };
 
 /**
+ * 指定した役割を持つユーザーのみがアクセスできるようにするミドルウェア
  * 階層権限対応の新しいensureRole
  */
 export const ensureHierarchicalRole = (requiredRole: UserRole) => {
@@ -58,7 +58,13 @@ export const ensureHierarchicalRole = (requiredRole: UserRole) => {
   ) => {
     const { auth_identity_id } = req.auth_context;
     
+    console.log("=== ensureHierarchicalRole デバッグ ===");
+    console.log("Required Role:", requiredRole);
+    console.log("Auth Context:", JSON.stringify(req.auth_context, null, 2));
+    console.log("Auth Identity ID:", auth_identity_id);
+    
     if (!auth_identity_id) {
+      console.log(" Auth Identity ID が存在しません");
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -69,21 +75,31 @@ export const ensureHierarchicalRole = (requiredRole: UserRole) => {
       data: [providerIdentity],
     } = await query.graph({
       entity: "provider_identity",
-      fields: ["id", "user_metadata"],
+      fields: ["id", "user_metadata", "entity_id", "provider"],
       filters: { auth_identity_id } as any,
     });
 
+    console.log("Provider Identity データ:", JSON.stringify(providerIdentity, null, 2));
+
     if (!providerIdentity) {
+      console.log(" Provider Identity が見つかりません");
       return res.status(403).json({ message: "No permission data found" });
     }
 
     const userMetadata = providerIdentity.user_metadata as UserMetadata;
     const userRole = userMetadata?.role || "company_user";
+    
+    console.log("User Metadata:", JSON.stringify(userMetadata, null, 2));
+    console.log("User Role:", userRole);
 
     // 階層権限チェック
-    if (!hasPermission(userRole, requiredRole)) {
+    const hasPermissionResult = hasPermission(userRole, requiredRole);
+    console.log(`権限チェック結果: ${hasPermissionResult} (${userRole} >= ${requiredRole})`);
+    
+    if (!hasPermissionResult) {
+      console.log(" 権限不足で拒否");
       return res.status(403).json({ 
-        message: `Insufficient permissions. Required: ${requiredRole}, Current: ${userRole}` 
+        message: `権限がありません。必要なロール: ${requiredRole}, あなたのロール: ${userRole}` 
       });
     }
 
@@ -92,16 +108,23 @@ export const ensureHierarchicalRole = (requiredRole: UserRole) => {
     req.auth_context.company_id = userMetadata?.company_id;
     req.auth_context.store_ids = userMetadata?.store_ids || [];
 
+    console.log(" 権限チェック成功、次の処理に進みます");
+    console.log("=== ensureHierarchicalRole デバッグ終了 ===");
+    
     return next();
   };
 };
+
+interface CompanyRequestBody {
+  company_id?: string;
+}
 
 /**
  * 会社アクセス権限チェック付きのrole確認
  */
 export const ensureRoleWithCompanyAccess = (requiredRole: UserRole) => {
   return async (
-    req: AuthenticatedMedusaRequest,
+    req: AuthenticatedMedusaRequest<CompanyRequestBody>,
     res: MedusaResponse,
     next: MedusaNextFunction
   ) => {
@@ -119,7 +142,7 @@ export const ensureRoleWithCompanyAccess = (requiredRole: UserRole) => {
       // Company Admin以下は自社のみアクセス可能
       if (userCompanyId && targetCompanyId && userCompanyId !== targetCompanyId) {
         return res.status(403).json({ 
-          message: "Access denied: You can only access your own company's data" 
+          message: "Access denied: 自社の情報にのみアクセスできます" 
         });
       }
 

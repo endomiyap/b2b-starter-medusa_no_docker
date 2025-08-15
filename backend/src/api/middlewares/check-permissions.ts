@@ -4,14 +4,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-
-export type UserRole = "platform_admin" | "company_admin" | "store_admin" | "company_user";
-
-export interface UserMetadata {
-  role?: UserRole;
-  company_id?: string;
-  store_ids?: string[];
-}
+import { UserMetadata, UserRole } from "../../utils/auth-utils";
 
 // 権限階層の定義
 const ROLE_HIERARCHY = {
@@ -66,7 +59,7 @@ export const checkPermissions = (requiredRole?: UserRole) => {
     if (requiredRole) {
       if (ROLE_HIERARCHY[userRole] < ROLE_HIERARCHY[requiredRole]) {
         return res.status(403).json({ 
-          message: `Insufficient permissions. Required: ${requiredRole}, Current: ${userRole}` 
+          message: `権限がありません. Required: ${requiredRole}, Current: ${userRole}` 
         });
       }
     }
@@ -80,12 +73,16 @@ export const checkPermissions = (requiredRole?: UserRole) => {
   };
 };
 
+interface CompanyRequestBody {
+  company_id?: string;
+}
+
 /**
  * 会社レベルのアクセスチェック
  */
 export const checkCompanyAccess = () => {
   return async (
-    req: AuthenticatedMedusaRequest,
+    req: AuthenticatedMedusaRequest<CompanyRequestBody>,
     res: MedusaResponse,
     next: MedusaNextFunction
   ) => {
@@ -109,12 +106,16 @@ export const checkCompanyAccess = () => {
   };
 };
 
+interface StoreRequestBody {
+  store_id?: string;
+}
+
 /**
  * Storeレベルのアクセスチェック
  */
 export const checkStoreAccess = () => {
   return async (
-    req: AuthenticatedMedusaRequest,
+    req: AuthenticatedMedusaRequest<StoreRequestBody>,
     res: MedusaResponse,
     next: MedusaNextFunction
   ) => {

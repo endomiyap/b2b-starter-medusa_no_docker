@@ -2,7 +2,7 @@
 
 ## 作業概要
 
-Medusa Store Moduleを使用して、既存テーブルを変更せずに Company と Store の関連付けを実装する。
+Company と Store の関連付けを実装する。MedusaのModule Linksを利用して既存テーブルを変更せずに
 
 ## 背景・要件
 
@@ -108,7 +108,7 @@ store_01K2DX48ZTG990CHV19HN64FWR | 企業Bのストア | 2025-08-12 10:08:17 (�
 ### 実装順序
 1. **最初**: `src/links/company-store.ts` でリンク定義
 2. **次に**: `src/modules/company/service.ts` でサービスメソッド追加
-3. **その後**: ワークフローとAPI実装
+3. **その後**: `npx medusa db:sync-links`でDBに同期
 
 ## linkの使用方法
 
@@ -170,14 +170,6 @@ Company (会社B)
   └── Store (サイトH - 海外向け)
 ```
 
-## 次のアクションアイテム
-
-1. [ ] `src/links/company-store.ts` の作成
-2. [ ] Company Service への store 関連メソッド追加
-3. [ ] ワークフロー実装
-4. [ ] API エンドポイント実装
-5. [ ] 動作テスト・検証
-
 ## 参考情報
 
 - **Medusa公式ドキュメント**: [Module Links](https://docs.medusajs.com/learn/fundamentals/module-links)
@@ -188,4 +180,4 @@ Company (会社B)
 ---
 
 *作成日: 2025-08-12*  
-*最終更新: 2025-08-12*
+*最終更新: 2025-08-15*

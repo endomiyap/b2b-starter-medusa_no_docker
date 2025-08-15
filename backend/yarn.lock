@@ -7406,6 +7406,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@swc/core-darwin-arm64@npm:^1.13.3":
+  version: 1.13.3
+  resolution: "@swc/core-darwin-arm64@npm:1.13.3"
+  checksum: 10c0/f3cdf75ccc7b66d8c4b2bb7a5664542a904821bd7f08f91e3e399112dcb4436ee9a7df306a80e58a80a31b20b9b69f830a2dca91d74e62bbe6c72cde84c75d66
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
 "@swc/core-darwin-x64@npm:1.5.7":
   version: 1.5.7
   resolution: "@swc/core-darwin-x64@npm:1.5.7"
@@ -12185,6 +12193,7 @@ __metadata:
     "@mikro-orm/migrations": "npm:6.4.3"
     "@mikro-orm/postgresql": "npm:6.4.3"
     "@swc/core": "npm:1.5.7"
+    "@swc/core-darwin-arm64": "npm:^1.13.3"
     "@swc/jest": "npm:^0.2.36"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^20.0.0"
