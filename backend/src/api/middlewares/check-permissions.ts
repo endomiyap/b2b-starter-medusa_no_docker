@@ -11,7 +11,7 @@ const ROLE_HIERARCHY = {
   "platform_admin": 4,
   "company_admin": 3,
   "store_admin": 2,
-  "company_user": 1,
+  "employee_user": 1,
 };
 
 /**
@@ -45,7 +45,7 @@ export const checkPermissions = (requiredRole?: UserRole) => {
     }
 
     const userMetadata = providerIdentity.user_metadata as UserMetadata;
-    const userRole = userMetadata?.role || "company_user";
+    const userRole = userMetadata?.role || "employee_user";
 
     // Platform Adminは全てにアクセス可能
     if (userRole === "platform_admin") {

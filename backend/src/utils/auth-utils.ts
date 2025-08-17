@@ -1,6 +1,6 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
-export type UserRole = "platform_admin" | "company_admin" | "store_admin" | "company_user";
+export type UserRole = "platform_admin" | "company_admin" | "store_admin" | "employee_user";
 
 // UserMetadataの再定義（Record<string, unknown>を継承）
 export interface UserMetadata extends Record<string, unknown> {
@@ -135,7 +135,7 @@ export function hasPermission(userRole: UserRole, requiredRole: UserRole): boole
     "platform_admin": 4,
     "company_admin": 3,
     "store_admin": 2,
-    "company_user": 1,
+    "employee_user": 1,
   };
 
   return hierarchy[userRole] >= hierarchy[requiredRole];

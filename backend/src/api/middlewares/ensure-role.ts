@@ -87,7 +87,7 @@ export const ensureHierarchicalRole = (requiredRole: UserRole) => {
     }
 
     const userMetadata = providerIdentity.user_metadata as UserMetadata;
-    const userRole = userMetadata?.role || "company_user";
+    const userRole = userMetadata?.role || "employee_user";
     
     console.log("User Metadata:", JSON.stringify(userMetadata, null, 2));
     console.log("User Role:", userRole);
