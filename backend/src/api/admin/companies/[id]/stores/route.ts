@@ -1,6 +1,6 @@
 import type { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { addStoreToCompanyWorkflow, removeStoreFromCompanyWorkflow } from "../../../../../workflows/company/workflows";
-import { Modules } from "@medusajs/framework/utils";
+import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 interface AddStoreRequest extends AuthenticatedMedusaRequest {
   body: {
@@ -41,26 +41,23 @@ export async function GET(
   console.log("Company ID:", companyId);
 
   try {
-    // 直接データベースから Company-Store リンクを取得
-    // query.graphがエラーになるため、直接SQLを使用
-    const { Client } = require('pg');
-    const client = new Client({
-      connectionString: process.env.DATABASE_URL || 'postgres://postgres@localhost/medusa-b2b-starter'
-    });
+    // 代替アプローチ: 企業エンティティから関連ストアを取得
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
     
-    await client.connect();
-    console.log("Database connected");
-    
-    console.log(">>> Querying company_company_store_store ");
+    console.log(">>> Querying company with related stores");
     console.log(">>> Company ID:", companyId);
     
-    const result = await client.query(
-      'SELECT store_id FROM company_company_store_store WHERE company_id = $1',
-      [companyId]
-    );
+    // 企業エンティティから関連データを取得してみる
+    const { data: companies } = await query.graph({
+      entity: "company",
+      fields: ["id", "stores.*"],
+      filters: { id: companyId },
+    });
     
-    const storeLinks = result.rows;
-    await client.end();
+    console.log("Company with stores:", companies);
+    
+    // storeLinksの形式に変換
+    const storeLinks = companies?.[0]?.stores?.map((store: any) => ({ store_id: store.id })) || [];
     
     console.log("紐づく Store の store_ids:", storeLinks);
     console.log("紐づく Store 件数:", storeLinks?.length || 0);

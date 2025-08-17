@@ -6,10 +6,16 @@ import CompanyModule from "../modules/company";
 console.log("[LINK DBG] company linkable:", CompanyModule?.linkable?.company);
 console.log("[LINK DBG] store   linkable:", (StoreModule as any)?.linkable?.store);
 
-export default defineLink(
+const CompanyStoreLink = defineLink(
   CompanyModule.linkable.company,
   {
     linkable: StoreModule.linkable.store,
     isList: true,
   }
 );
+
+// entryPointを追加（リンクテーブルへの直接アクセス用）
+// TODO 削除
+// export const companyStoreEntryPoint = "company_company_store_store";
+
+export default CompanyStoreLink;
