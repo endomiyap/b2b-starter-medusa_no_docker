@@ -24,7 +24,6 @@ interface RemoveStoreRequest extends AuthenticatedMedusaRequest {
       null
     )
     .filter((v: unknown): v is string => typeof v === "string" && v.length > 0)
-
     
   // 念のため重複排除
   return Array.from(new Set(ids))
@@ -43,7 +42,7 @@ export async function GET(
 
   try {
     // 直接データベースから Company-Store リンクを取得
-    // Medusa v2ではpgパッケージを使用
+    // query.graphがエラーになるため、直接SQLを使用
     const { Client } = require('pg');
     const client = new Client({
       connectionString: process.env.DATABASE_URL || 'postgres://postgres@localhost/medusa-b2b-starter'
@@ -52,8 +51,8 @@ export async function GET(
     await client.connect();
     console.log("Database connected");
     
-    console.log("Querying database for company-store links...");
-    console.log("Query: SELECT store_id FROM company_company_store_store WHERE company_id =", companyId);
+    console.log(">>> Querying company_company_store_store ");
+    console.log(">>> Company ID:", companyId);
     
     const result = await client.query(
       'SELECT store_id FROM company_company_store_store WHERE company_id = $1',
@@ -63,10 +62,10 @@ export async function GET(
     const storeLinks = result.rows;
     await client.end();
     
-    console.log("Store links from database:", storeLinks);
-    console.log("Store links count:", storeLinks.length);
+    console.log("紐づく Store の store_ids:", storeLinks);
+    console.log("紐づく Store 件数:", storeLinks?.length || 0);
     
-    if (storeLinks.length === 0) {
+    if (!storeLinks || storeLinks.length === 0) {
       console.log("No store links found in database, returning empty stores array");
       res.json({
         company_id: companyId,
@@ -75,7 +74,7 @@ export async function GET(
       return;
     }
 
-    console.log("Processing store links to extract store IDs...");
+    console.log("Processing store links to extract store IDs");
     const storeIds = storeLinks.map((link: { store_id: string }) => {
       console.log("Extracting store_id from link:", link.store_id);
       return link.store_id;
@@ -97,7 +96,7 @@ export async function GET(
     
     // Store Moduleサービスを使用してストアデータを取得
     const storeService = req.scope.resolve(Modules.STORE) as any;
-    console.log("Store service resolved:", !!storeService);
+    console.log(" >>> Store service resolved:", !!storeService);
     
     const stores = await Promise.all(
       storeIds.map(async (storeId: string) => {
