@@ -19,7 +19,7 @@ import {
   AdminUpdateEmployee,
 } from "./validators";
 import { ensureHierarchicalRole, ensureRoleWithCompanyAccess } from "../../middlewares/ensure-role";
-import { checkStoreAccess } from "../../middlewares/check-permissions";
+import { checkStoreAccess, preloadCompanyStoreLinks } from "../../middlewares/check-permissions";
 
 export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
   /* Companies Middlewares */
@@ -144,6 +144,7 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/companies/:id/stores",
     middlewares: [
+      preloadCompanyStoreLinks(), // ストアリンクを事前取得
       ensureRoleWithCompanyAccess("store_admin"), // store_admin以上 + 会社アクセス権チェック
     ],
   },

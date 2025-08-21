@@ -77,6 +77,56 @@ interface CompanyRequestBody {
   company_id?: string;
 }
 
+// リンクデータを保存するためのリクエスト拡張
+declare global {
+  namespace Express {
+    interface Request {
+      companyStoreLinks?: any[];
+      productStoreLinks?: any[];
+    }
+  }
+}
+
+/**
+ * 会社のストアリンクを事前取得してreqに保存
+ */
+export const preloadCompanyStoreLinks = () => {
+  return async (
+    req: AuthenticatedMedusaRequest,
+    res: MedusaResponse,
+    next: MedusaNextFunction
+  ) => {
+    const companyId = req.params.id || req.auth_context.company_id;
+    
+    if (!companyId) {
+      return next();
+    }
+
+    try {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+      
+      console.log(">>> MIDDLEWARE: Preloading company store links for:", companyId);
+      
+      // ミドルウェアでリンクテーブルから取得を試行
+      const { data: storeLinks } = await query.graph({
+        entity: "company_company_store_store",
+        fields: ["store_id"],
+        filters: { company_id: companyId } as any,
+      });
+      
+      // reqオブジェクトにデータを保存
+      req.companyStoreLinks = storeLinks || [];
+      console.log(">>> MIDDLEWARE: Preloaded store links:", req.companyStoreLinks.length);
+      
+    } catch (error: any) {
+      console.log(">>> MIDDLEWARE: Failed to preload store links:", error.message);
+      req.companyStoreLinks = [];
+    }
+    
+    next();
+  };
+};
+
 /**
  * 会社レベルのアクセスチェック
  */

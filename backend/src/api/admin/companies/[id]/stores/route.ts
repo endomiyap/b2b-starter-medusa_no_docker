@@ -1,6 +1,7 @@
 import type { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { addStoreToCompanyWorkflow, removeStoreFromCompanyWorkflow } from "../../../../../workflows/company/workflows";
 import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import CompanyStoreLink from "../../../../../links/company-store";
 
 interface AddStoreRequest extends AuthenticatedMedusaRequest {
   body: {
@@ -41,23 +42,38 @@ export async function GET(
   console.log("Company ID:", companyId);
 
   try {
-    // 代替アプローチ: 企業エンティティから関連ストアを取得
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
     
-    console.log(">>> Querying company with related stores");
-    console.log(">>> Company ID:", companyId);
+    console.log(">>> Using CompanyStoreLink.entryPoint for direct link table access");
+    console.log(">>> CompanyStoreLink.entryPoint:", (CompanyStoreLink as any).entryPoint);
     
-    // 企業エンティティから関連データを取得してみる
-    const { data: companies } = await query.graph({
-      entity: "company",
-      fields: ["id", "stores.*"],
-      filters: { id: companyId },
-    });
+    let storeLinks: any[] = [];
     
-    console.log("Company with stores:", companies);
-    
-    // storeLinksの形式に変換
-    const storeLinks = companies?.[0]?.stores?.map((store: any) => ({ store_id: store.id })) || [];
+    try {
+      // 正しいentryPointを使用してリンクテーブルにアクセス
+      const { data: linkData } = await query.graph({
+        entity: (CompanyStoreLink as any).entryPoint,
+        fields: ["store_id"],
+        filters: { company_id: companyId } as any,
+      });
+      
+      storeLinks = linkData || [];
+      console.log(">>> Link table access SUCCESS with entryPoint:", storeLinks.length);
+      
+    } catch (linkError: any) {
+      console.log(">>> Link table access FAILED:", linkError.message);
+      
+      // フォールバック: 企業エンティティアプローチ
+      console.log(">>> Fallback to company entity approach");
+      const { data: companies } = await query.graph({
+        entity: "company",
+        fields: ["id", "stores.*"],
+        filters: { id: companyId },
+      });
+      
+      console.log("Company with stores:", companies);
+      storeLinks = companies?.[0]?.stores?.map((store: any) => ({ store_id: store.id })) || [];
+    }
     
     console.log("紐づく Store の store_ids:", storeLinks);
     console.log("紐づく Store 件数:", storeLinks?.length || 0);

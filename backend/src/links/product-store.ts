@@ -11,7 +11,8 @@ const ProductStoreLink = defineLink(
   }
 );
 
-// entryPointを追加（リンクテーブルへの直接アクセス用）
-export const productStoreEntryPoint = "product_product_store_store";
+// entryPointを明示的に設定
+// query.graph()でアクセスする際に必要
+(ProductStoreLink as any).entryPoint = "product_product_store_store";
 
 export default ProductStoreLink;

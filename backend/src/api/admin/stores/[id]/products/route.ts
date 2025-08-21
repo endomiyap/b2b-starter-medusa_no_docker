@@ -1,5 +1,6 @@
 import type { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import ProductStoreLink from "../../../../../links/product-store";
 
 /**
  * 特定ストアの商品一覧を取得
@@ -25,10 +26,13 @@ export async function GET(
     // 特定の商品IDのみを取得
     let productIds: string[] = [];
     
-    // 企業→ストアと同じパターンでリンクテーブルから商品IDを取得を試行
+    // ProductStoreLinkのentryPointを使用してリンクテーブルから商品IDを取得
     try {
+      console.log(">>> Using ProductStoreLink.entryPoint for direct link table access");
+      console.log(">>> ProductStoreLink.entryPoint:", (ProductStoreLink as any).entryPoint);
+      
       const { data: productLinks } = await query.graph({
-        entity: "product_product_store_store",
+        entity: (ProductStoreLink as any).entryPoint,
         fields: ["product_id"],
         filters: { store_id: storeId } as any,
       });
