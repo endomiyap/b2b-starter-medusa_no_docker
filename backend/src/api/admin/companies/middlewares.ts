@@ -19,7 +19,8 @@ import {
   AdminUpdateEmployee,
 } from "./validators";
 import { ensureHierarchicalRole, ensureRoleWithCompanyAccess } from "../../middlewares/ensure-role";
-import { checkStoreAccess, preloadCompanyStoreLinks } from "../../middlewares/check-permissions";
+import { preloadCompanyStoreLinks } from "../../middlewares/check-permissions";
+import { setRLSContext } from "../../middlewares/set-rls-context";
 
 export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
   /* Companies Middlewares */
@@ -27,10 +28,12 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/companies",
     middlewares: [
-      // TODO 動作確認用 
+      // RLSコンテキスト設定（最優先で実行）
+      setRLSContext(),
+      // TODO 動作確認用 console
       // デバッグ用ミドルウェアを最初に追加
       (req: any, res: any, next: any) => {
-        console.log("=== DEBUG: Middleware reached ===");
+        console.log("=== Middleware デバッグ ===");
         console.log("Auth context:", req.auth_context);
         console.log("Headers:", req.headers);
         next();
@@ -58,6 +61,8 @@ export const adminCompaniesMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/companies/:id",
     middlewares: [
+      // RLSコンテキスト設定（最優先で実行）
+      setRLSContext(),
       ensureRoleWithCompanyAccess("company_admin"), // 会社アクセス権チェック
       validateAndTransformQuery(
         AdminGetCompanyParams,

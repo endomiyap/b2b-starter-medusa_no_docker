@@ -59,7 +59,7 @@ export const ensureHierarchicalRole = (requiredRole: UserRole) => {
     const { auth_identity_id } = req.auth_context;
     
     console.log("=== ensureHierarchicalRole デバッグ ===");
-    console.log("Required Role:", requiredRole);
+    console.log("permission Level:", requiredRole);
     console.log("Auth Context:", JSON.stringify(req.auth_context, null, 2));
     console.log("Auth Identity ID:", auth_identity_id);
     
@@ -94,7 +94,7 @@ export const ensureHierarchicalRole = (requiredRole: UserRole) => {
 
     // 階層権限チェック
     const hasPermissionResult = hasPermission(userRole, requiredRole);
-    console.log(`権限チェック結果: ${hasPermissionResult} (${userRole} >= ${requiredRole})`);
+    console.log(` 権限チェック結果: ${hasPermissionResult} (${userRole} >= ${requiredRole})`);
     
     if (!hasPermissionResult) {
       console.log(" 権限不足で拒否");
